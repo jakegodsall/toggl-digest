@@ -5,7 +5,9 @@ Description: A small scheduled task for pulling daily Toggl data into a JSON doc
 Parameters:
   TogglEmail:
     Type: String
-  TogglePassword:
+  TogglPassword:
+    Type: String
+  TogglWorkspaceId:
     Type: String
 
 Globals:
@@ -33,3 +35,4 @@ Resources:
         Variables:
           TOGGL_EMAIL: !Ref TogglEmail
           TOGGL_PASSWORD: !Ref TogglPassword
+          TOGGL_WORKSPACE_ID: !Ref TogglWorkspaceId
