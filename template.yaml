@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: A small scheduled task for pulling daily Toggl data into a JSON document and storing in S3.
 
+Parameters:
+  TogglEmail:
+    Type: String
+  TogglePassword:
+    Type: String
+
 Globals:
   Function:
     Timeout: 5
@@ -25,4 +31,5 @@ Resources:
             Schedule: cron(0 0 * * ? *)
       Environment:
         Variables:
-          PARAM1: VALUE
+          TOGGL_EMAIL: !Ref TogglEmail
+          TOGGL_PASSWORD: !Ref TogglPassword
