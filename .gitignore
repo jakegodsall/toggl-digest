@@ -1,2 +1,6 @@
 # AWS SAM
 .aws-sam
+
+# Project Files
+local.sh
+local.json
