@@ -44,7 +44,11 @@ func getProjectMap() (map[string]string, error) {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
-	authHeaderValue := getAuthHeaderValue()
+	authHeaderValue, err := getAuthHeaderValue()
+	if err != nil {
+		return nil, errors.New("could not create authentication header value")
+	}
+
 	req.Header.Set("Authorization", authHeaderValue)
 
 	client := &http.Client{}
