@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,23 +13,29 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func getAuthHeaderValue() string {
+func getAuthHeaderValue() (string, error) {
 	// Get the environment variables
 	email := os.Getenv("TOGGL_EMAIL")
 	password := os.Getenv("TOGGL_PASSWORD")
+	if email == "" {
+		return "", errors.New("environment variable TOGGL_EMAIL is not set")
+	}
+	if password == "" {
+		return "", errors.New("environment variable TOGGL_PASSWORD is not set")
+	}
 
 	// Concatenate and encode to base64
 	auth := email + ":" + password
 	authEncoded := base64.StdEncoding.EncodeToString([]byte(auth))
 	headerValue := "Basic " + authEncoded
 
-	return headerValue
+	return headerValue, nil
 }
 
 func getProjectMap() (map[string]string, error) {
 	workspaceId := os.Getenv("TOGGL_WORKSPACE_ID")
 	if workspaceId == "" {
-		return nil, fmt.Errorf("environment variable TOGGL_WORKSPACE_ID is not set")
+		return nil, errors.New("environment variable TOGGL_WORKSPACE_ID is not set")
 	}
 	
 	apiURL := "https://api.track.toggl.com/api/v9/workspaces/" + workspaceId + "/projects"
