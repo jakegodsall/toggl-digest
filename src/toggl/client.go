@@ -14,12 +14,12 @@ type TogglClient struct {
 }
 
 type TimeEntry struct {
-	ID          int
-	ProjectID   int
-	Description string
-	Duration    int
-	Start       string
-	End         string
+	ID          int    `json:"id"`
+	ProjectID   int    `json:"project_id"`
+	Description string `json:"description"`
+	Duration    int    `json:"duration"`
+	Start       string `json:"start"`
+	End         string `json:"stop"`
 }
 
 func NewTogglClient(authHeader string) *TogglClient {
@@ -65,35 +65,41 @@ func (client *TogglClient) GetProjectMap() (map[string]string, error) {
 	return projectMap, nil
 }
 
-func (client *TogglClient) GetTimeEntries() (string, error) {
+func (client *TogglClient) GetTimeEntries() ([]TimeEntry, error) {
 	workspaceId := os.Getenv("TOGGL_WORKSPACE_ID")
 	if workspaceId == "" {
-		return "", errors.New("environment variable TOGGL_WORKSPACE_ID is not set")
+		return nil, errors.New("environment variable TOGGL_WORKSPACE_ID is not set")
 	}
 
 	apiUrl := "https://api.track.toggl.com/api/v9/me/time_entries"
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to create HTTP request: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
 	req.Header.Set("Authorization", client.AuthHeader)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to send HTTP request: %w", err)
+		return nil, fmt.Errorf("failed to send HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	fmt.Println(string(bodyBytes))
+	var timeEntries []TimeEntry
 
-	return string(bodyBytes), nil
+	json.Unmarshal(bodyBytes, &timeEntries)
+	err = json.Unmarshal(bodyBytes, &timeEntries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse JSON response: %w", err)
+	}
+
+	return timeEntries, nil
 }

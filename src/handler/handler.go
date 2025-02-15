@@ -30,8 +30,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 	fmt.Println(projectMap)
 
-	timeEntries, err := client.GetTimeEntries()
-	fmt.Println(timeEntries)
+	client.GetTimeEntries()
 
 	// Fetch user info
 	apiURL := "https://api.track.toggl.com/api/v9/me"
