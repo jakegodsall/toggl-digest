@@ -2,8 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"jakegodsall.com/toggl-project/auth"
@@ -28,41 +26,19 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			StatusCode: 500,
 		}, nil
 	}
-	fmt.Println(projectMap)
 
-	client.GetTimeEntries()
-
-	// Fetch user info
-	apiURL := "https://api.track.toggl.com/api/v9/me"
-	req, err := http.NewRequest("GET", apiURL, nil)
+	timeEntries, err := client.GetTimeEntries()
 	if err != nil {
 		return events.APIGatewayProxyResponse{
-			Body:       fmt.Sprintf("Error creating request: %s", err),
+			Body:       "Error getting time entries.",
 			StatusCode: 500,
 		}, nil
 	}
 
-	req.Header.Add("Authorization", authHeader)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Body:       fmt.Sprintf("Error making request: %s", err),
-			StatusCode: 500,
-		}, nil
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Body:       fmt.Sprintf("Error reading response: %s", err),
-			StatusCode: 500,
-		}, nil
-	}
+	client.GetTimeEntriesWithProjects(timeEntries, projectMap)
 
 	return events.APIGatewayProxyResponse{
-		Body:       string(body),
-		StatusCode: resp.StatusCode,
+		Body:       "success",
+		StatusCode:  200,
 	}, nil
 }

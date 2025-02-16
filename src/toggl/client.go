@@ -27,11 +27,20 @@ type TimeEntry struct {
 	End         string `json:"stop"`
 }
 
+type ProjectTime struct {
+	ID          int
+	ProjectName string
+	Description string
+	Duration    int
+	Start       string
+	End         string
+}
+
 func NewTogglClient(authHeader string) *TogglClient {
 	return &TogglClient{AuthHeader:  authHeader}
 }
 
-func (client *TogglClient) GetProjectMap() (map[string]string, error) {
+func (client *TogglClient) GetProjectMap() (map[int]string, error) {
 	workspaceId := os.Getenv("TOGGL_WORKSPACE_ID")
 	if workspaceId == "" {
 		return nil, errors.New("environment variable TOGGL_WORKSPACE_ID is not set")
@@ -59,9 +68,9 @@ func (client *TogglClient) GetProjectMap() (map[string]string, error) {
 		return nil, fmt.Errorf("failed to decode the JSON response: %w", err)
 	}
 
-	projectMap := make(map[string]string)
+	projectMap := make(map[int]string)
 	for _, project := range projects {
-		projectMap[fmt.Sprint(project.ID)] = project.Name
+		projectMap[project.ID] = project.Name
 	}
 
 	return projectMap, nil
@@ -104,4 +113,25 @@ func (client *TogglClient) GetTimeEntries() ([]TimeEntry, error) {
 	}
 
 	return timeEntries, nil
+}
+
+func (client *TogglClient) GetTimeEntriesWithProjects(timeEntries []TimeEntry, projectMap map[int]string) ([]ProjectTime, error) {
+	var projectTimes []ProjectTime
+	for _, timeEntry := range timeEntries {
+		projectId := timeEntry.ProjectID
+		for key, value := range projectMap {
+			if projectId == key {
+				projectTimes = append(projectTimes, ProjectTime{
+					ID: timeEntry.ID,
+					ProjectName: value,
+					Description: timeEntry.Description,
+					Duration: timeEntry.Duration,
+					Start: timeEntry.Start,
+					End: timeEntry.End,
+				})
+			}
+		}
+	}
+
+	return projectTimes, nil
 }
