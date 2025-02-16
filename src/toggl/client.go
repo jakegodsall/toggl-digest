@@ -119,7 +119,6 @@ func (client *TogglClient) GetTimeEntriesWithProjects(timeEntries []TimeEntry, p
 	var projectTimes []ProjectTime
 
 	for _, timeEntry := range timeEntries {
-		// Check if the projectId exists in the map
 		if projectName, exists := projectMap[timeEntry.ProjectID]; exists {
 			projectTimes = append(projectTimes, ProjectTime{
 				ID:          timeEntry.ID,

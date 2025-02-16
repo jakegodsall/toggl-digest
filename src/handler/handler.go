@@ -35,7 +35,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}, nil
 	}
 
-	client.GetTimeEntriesWithProjects(timeEntries, projectMap)
+	projectTimes := client.GetTimeEntriesWithProjects(timeEntries, projectMap)
+	fmt.Println(projectTimes)
 
 	return events.APIGatewayProxyResponse{
 		Body:       "success",
