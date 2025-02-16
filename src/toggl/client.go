@@ -13,6 +13,11 @@ type TogglClient struct {
 	AuthHeader string
 }
 
+type Project struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type TimeEntry struct {
 	ID          int    `json:"id"`
 	ProjectID   int    `json:"project_id"`
@@ -49,10 +54,7 @@ func (client *TogglClient) GetProjectMap() (map[string]string, error) {
 		return nil, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
 	}
 
-	var projects []struct {
-		ID int
-		Name string
-	}
+	var projects []Project
 	if err := json.NewDecoder(resp.Body).Decode(&projects); err != nil {
 		return nil, fmt.Errorf("failed to decode the JSON response: %w", err)
 	}
