@@ -115,23 +115,22 @@ func (client *TogglClient) GetTimeEntries() ([]TimeEntry, error) {
 	return timeEntries, nil
 }
 
-func (client *TogglClient) GetTimeEntriesWithProjects(timeEntries []TimeEntry, projectMap map[int]string) ([]ProjectTime, error) {
+func (client *TogglClient) GetTimeEntriesWithProjects(timeEntries []TimeEntry, projectMap map[int]string) []ProjectTime {
 	var projectTimes []ProjectTime
+
 	for _, timeEntry := range timeEntries {
-		projectId := timeEntry.ProjectID
-		for key, value := range projectMap {
-			if projectId == key {
-				projectTimes = append(projectTimes, ProjectTime{
-					ID: timeEntry.ID,
-					ProjectName: value,
-					Description: timeEntry.Description,
-					Duration: timeEntry.Duration,
-					Start: timeEntry.Start,
-					End: timeEntry.End,
-				})
-			}
+		// Check if the projectId exists in the map
+		if projectName, exists := projectMap[timeEntry.ProjectID]; exists {
+			projectTimes = append(projectTimes, ProjectTime{
+				ID:          timeEntry.ID,
+				ProjectName: projectName,
+				Description: timeEntry.Description,
+				Duration:    timeEntry.Duration,
+				Start:       timeEntry.Start,
+				End:         timeEntry.End,
+			})
 		}
 	}
 
-	return projectTimes, nil
+	return projectTimes
 }
